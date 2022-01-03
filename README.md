@@ -4,7 +4,7 @@
 # Features
  * Bulk download Youtube Channel
  * Bulk download Playlist
- * Automatic Numbering by oldest-to-newest (001 - VideoTitle1.mp4)
+ * Automatic Numbering by oldest-to-newest (001 - VideoTitle1.mp4, 002 - VideoTitle2.mp4, ..., 232 - VideoTitle232.mp4)
  * Automatic detection, channel or playlist
  
 ## Dependencies
