@@ -13,7 +13,7 @@ import sys
 from pytube import Playlist, YouTube
 
 
-def download(vodURL, folderPath, idx, numbTotal):
+def download(vodURL, folderPath, idx, numbTotal, failedTotal):
     # Get video
     try:
         video = YouTube(vodURL)
@@ -30,7 +30,7 @@ def download(vodURL, folderPath, idx, numbTotal):
     tmpAudio = folderPath + "tmp_audio"
 
     # Show progress
-    print("(" + str(round(int(idx) / int(numbTotal) * 100, 2)) + "% - " + str(idx) + "/" + str(numbTotal) + ") - " + title)
+    print(str(round(int(idx) / int(numbTotal) * 100, 2)) + "% - " + str(idx) + "/" + str(numbTotal) + "(" + str(failedTotal) + ") - " + title)
 
     try:
         # Download the best video quality
@@ -54,7 +54,7 @@ def download(vodURL, folderPath, idx, numbTotal):
 
         print("INFO - Download Successful")
     except Exception:
-        print("ERROR - Couldn't download Video, check URL")
+        print("ERROR - Couldn't download Video - " + vodURL)
         return False
 
     return True
@@ -80,7 +80,7 @@ def main(playlistURL, folderPath):
     os.mkdir(folderPath)
 
     # Start from oldest to newest
-    video_urls = reversed(p.video_urls)
+    video_urls = [vodURL for vodURL in reversed(p.video_urls)]
 
     # Set Failed Video
     failedVideos, failedVideosAgain = {}, {}
@@ -91,7 +91,7 @@ def main(playlistURL, folderPath):
         idx = formatIdx.format(idx + 1)
 
         # Download Video
-        status = download(vodURL, folderPath, idx, numbTotal)
+        status = download(vodURL, folderPath, idx, numbTotal, len(failedVideos))
 
         # Check for failed status
         if status is False:
@@ -100,8 +100,8 @@ def main(playlistURL, folderPath):
         print("")
 
     # Check for Failed Videos
-    print("--------------------------------")
     if len(failedVideos) != 0:
+        print("--------------------------------")
         totalFailed = formatIdx.format(len(failedVideos))
         print("INFO - Failed videos: " + totalFailed)
         print("INFO - Retrying")
@@ -109,7 +109,7 @@ def main(playlistURL, folderPath):
 
         # Retry for failed Videos
         for idx, vodURL in failedVideos.items():
-            status = download(vodURL, folderPath, idx, totalFailed)
+            status = download(vodURL, folderPath, idx, totalFailed, len(failedVideosAgain))
             if status is False:
                 failedVideosAgain[idx] = vodURL
 
