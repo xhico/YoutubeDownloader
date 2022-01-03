@@ -1,5 +1,6 @@
 # PlaylistDownloader
- Download any public Playlist from Youtube
+ Download any public Playlist from Youtube</br>
+ Automatic numbering (001 - VideoTitle1.mp4)
  
 ## Dependencies
   * Pytube (https://pytube.io/en/latest/)
