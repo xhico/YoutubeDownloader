@@ -10,7 +10,7 @@ import re
 import shutil
 import sys
 
-from pytube import Playlist, YouTube
+from pytube import YouTube, Playlist, Channel
 
 
 def download(vodURL, folderPath, idx, numbTotal, failedTotal):
@@ -60,14 +60,20 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
     return True
 
 
-def main(playlistURL, folderPath):
+def main(YoutubeURL, folderPath):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # Set Playlist
     try:
-        p = Playlist(playlistURL)
+        if "playlist?list=" in YoutubeURL:
+            p = Playlist(YoutubeURL)
+        elif "/c/" in YoutubeURL:
+            p = Channel(YoutubeURL)
+        else:
+            print("Invalid URL")
+            return
     except Exception:
-        print("ERROR - Couldn't reach Playlist - " + playlistURL)
+        print("ERROR - Couldn't reach URL - " + YoutubeURL)
         return
 
         # Set number of total videos and numbering format
@@ -80,7 +86,7 @@ def main(playlistURL, folderPath):
     os.mkdir(folderPath)
 
     # Start from oldest to newest
-    video_urls = [vodURL for vodURL in reversed(p.video_urls)]
+    video_urls = reversed(p.video_urls)
 
     # Set Failed Video
     failedVideos, failedVideosAgain = {}, {}
