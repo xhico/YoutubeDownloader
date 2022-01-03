@@ -25,9 +25,9 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
     # Set titles, allow only Alphanumeric and " .,_-" -> Remove multi-spaces
     title = re.sub('\s+', ' ', re.sub(r'[^A-Za-z0-9 .,_-]+', '', video.title))
     filename = idx + " - " + title
-    fullPath = folderPath + filename + ".mp4"
-    tmpVideo = folderPath + "tmp_video"
-    tmpAudio = folderPath + "tmp_audio"
+    fullPath = os.path.join(folderPath, filename + ".mp4")
+    tmpVideo = os.path.join(folderPath, "tmp_video")
+    tmpAudio = os.path.join(folderPath, "tmp_audio")
 
     # Show progress
     print(str(round(int(idx) / int(numbTotal) * 100, 2)) + "% - " + str(idx) + "/" + str(numbTotal) + "(" + str(failedTotal) + ") - " + title)
