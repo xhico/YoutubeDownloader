@@ -14,7 +14,11 @@
 ## Instalation
 ```
 sudo apt install ffmpeg -y
+```
+```
 python3 -m pip install pytube --no-cache-dir
+```
+```
 python3 -m pip install --upgrade pytube
 ```
 
