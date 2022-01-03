@@ -15,5 +15,5 @@ python3 -m pip install --upgrade pytube
 
 ## Usage
 ```
-python3 YoutubeDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll
+python3 PlaylistDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll
 ```
