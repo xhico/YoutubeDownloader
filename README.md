@@ -1,6 +1,10 @@
-# PlaylistDownloader
- Download any public Playlist from Youtube</br>
- Automatic numbering (001 - VideoTitle1.mp4)
+# YoutubeDownloader
+ Download any public Youtube Channel / Playlist from Youtube</br>
+ 
+# Features
+ * Bulk download Youtube Channel
+ * Bulk download Playlist
+ * Automatic Numbering by oldest-to-newest (001 - VideoTitle1.mp4)
  
 ## Dependencies
   * Pytube (https://pytube.io/en/latest/)
@@ -15,5 +19,5 @@ python3 -m pip install --upgrade pytube
 
 ## Usage
 ```
-python3 PlaylistDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll
+python3 YoutubeDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll
 ```
