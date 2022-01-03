@@ -23,7 +23,7 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
 
     # Set filename, fullPath and temporary video/audio files
     # Set titles, allow only Alphanumeric and " .,_-" -> Remove multi-spaces
-    title = re.sub('\s+', ' ', re.sub(r'[^A-Za-z0-9 .,_-]+', '', video.title))
+    title = re.sub('\s+', ' ', re.sub(r'[^A-Za-z0-9 .,_-]+', '', video.title)).strip()
     filename = idx + " - " + title
     fullPath = os.path.join(folderPath, filename + ".mp4")
     tmpVideo = os.path.join(folderPath, "tmp_video")
