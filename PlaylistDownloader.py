@@ -17,7 +17,10 @@ def main(playlistURL, folderPath):
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # Set Playlist
-    p = Playlist(playlistURL)
+    try:
+        p = Playlist(playlistURL)
+    except Exception:
+        print("Couldn't reach Playlist, check URL")
 
     # Set number of total videos and numbering format
     numbTotal = len(p.video_urls)
@@ -34,7 +37,11 @@ def main(playlistURL, folderPath):
     # Iterate over every video URL
     for idx, vodURL in enumerate(video_urls):
         # Get video
-        video = YouTube(vodURL)
+        try:
+            video = YouTube(vodURL)
+        except Exception:
+            print("ERROR - Couldn't reach Video, check URL\n")
+            continue
 
         # Set index format (001, 002, 003, ..., 323)
         idx = formatIdx.format(idx + 1)
@@ -50,15 +57,19 @@ def main(playlistURL, folderPath):
         # Show progress
         print("(" + str(round(int(idx) / numbTotal * 100, 2)) + "% - " + idx + "/" + str(numbTotal) + ") - " + title)
 
-        # Download the best video quality
-        print("Downloading video")
-        video_only = video.streams.filter(type='video').order_by('resolution').last()
-        video_only.download(filename=tmpVideo)
+        try:
+            # Download the best video quality
+            print("Downloading video")
+            video_only = video.streams.filter(type='video').order_by('resolution').last()
+            video_only.download(filename=tmpVideo)
 
-        # Download the best audio quality
-        print("Downloading audio")
-        audio_only = video.streams.filter(type='audio').order_by('abr').last()
-        audio_only.download(filename=tmpAudio)
+            # Download the best audio quality
+            print("Downloading audio")
+            audio_only = video.streams.filter(type='audio').order_by('abr').last()
+            audio_only.download(filename=tmpAudio)
+        except Exception as ex:
+            print("ERROR - Couldn't download files\n")
+            continue
 
         # Merge two files
         print("Merging vidio-audio")
