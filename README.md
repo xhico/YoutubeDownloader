@@ -5,6 +5,7 @@
  * Bulk download Youtube Channel
  * Bulk download Playlist
  * Automatic Numbering by oldest-to-newest (001 - VideoTitle1.mp4)
+ * Automatic detection, channel or playlist
  
 ## Dependencies
   * Pytube (https://pytube.io/en/latest/)
@@ -19,5 +20,8 @@ python3 -m pip install --upgrade pytube
 
 ## Usage
 ```
-python3 YoutubeDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll
+python3 YoutubeDownloader.py https://www.youtube.com/playlist?list=PLlaN88a7y2_plecYoJxvRFTLHVbIVAOoc /home/pi/RickRoll/
+```
+```
+python3 YoutubeDownloader.py https://www.youtube.com/c/RickastleyCoUkOfficial/videos /home/pi/RickRoll/
 ```
