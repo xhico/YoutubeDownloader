@@ -69,18 +69,19 @@ def main(YoutubeURL, folderPath):
 
     # Set Playlist
     try:
-        if "playlist?list=" in YoutubeURL:
-            p = Playlist(YoutubeURL)
-        elif "/c/" in YoutubeURL:
-            p = Channel(YoutubeURL)
-        else:
-            print("Invalid URL")
-            return
+        p = Channel(YoutubeURL)
+        print("Channel: " + p.title)
     except Exception:
-        print("ERROR - Couldn't reach URL - " + YoutubeURL)
-        return
+        try:
+            p = Playlist(YoutubeURL)
+            print("Playlist: " + p.title)
+        except Exception:
+            print("ERROR - Couldn't reach Channel or Playlist - " + YoutubeURL)
+            return
+    finally:
+        print("--------------------------------")
 
-        # Set number of total videos and numbering format
+    # Set number of total videos and numbering format
     numbTotal = len(p.video_urls)
     formatIdx = "{:0" + str(len(str(numbTotal))) + "}"
 
