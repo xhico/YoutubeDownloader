@@ -31,24 +31,18 @@ def checkURL():
 
 def download(vodURL):
     # Get video
-    try:
-        video = YouTube(vodURL)
-        print("INFO - Video: " + video.title)
+    video = YouTube(vodURL)
+    print("INFO - Video: " + video.title)
 
-        # Download the best video quality
-        print("INFO - Downloading video")
-        video_only = video.streams.filter(type='video').order_by('resolution').last()
-        video_only.download(filename=tmpVideo)
+    # Download the best video quality
+    print("INFO - Downloading video")
+    video_only = video.streams.filter(type='video').order_by('resolution').last()
+    video_only.download(filename=tmpVideo)
 
-        # Download the best audio quality
-        print("INFO - Downloading audio")
-        audio_only = video.streams.filter(type='audio').order_by('abr').last()
-        audio_only.download(filename=tmpAudio)
-
-        print("INFO - Download Successful")
-    except Exception:
-        print("ERROR - Couldn't download Video - " + vodURL)
-        video = False
+    # Download the best audio quality
+    print("INFO - Downloading audio")
+    audio_only = video.streams.filter(type='audio').order_by('abr').last()
+    audio_only.download(filename=tmpAudio)
 
     return video
 
@@ -63,7 +57,6 @@ def process(video, idx):
     fullPath = os.path.join(folderPath, filename + ".mp4")
 
     # Merge two files
-    print("INFO - Merging video-audio")
     cmd = "ffmpeg -i '" + tmpVideo + "' -i '" + tmpAudio + "' -c:v copy -c:a aac '" + fullPath + "' -loglevel error"
     os.system(cmd)
 
@@ -95,8 +88,8 @@ def main():
 
     # Start from oldest to newest | Failed videos track | Number total videos
     # Set number of total videos and numbering format
-    video_urls, numbTotal, failedVideos = reversed(yt.video_urls), len(yt.video_urls), {}
-    formatIdx = "{:0" + str(len(str(numbTotal))) + "}"
+    video_urls, failedVideos = list(reversed(yt.video_urls)), {}
+    formatIdx = "{:0" + str(len(str(len(video_urls)))) + "}"
 
     # Iterate over every video URL
     for idx, vodURL in enumerate(video_urls):
@@ -104,20 +97,23 @@ def main():
         idx = formatIdx.format(idx + 1)
 
         # Show progress
-        percentage = str(round(int(idx) / int(numbTotal) * 100, 2)) + "%"
-        print(percentage + " - " + str(idx) + "/" + str(numbTotal) + "(" + str(len(failedVideos)) + ") - " + vodURL)
-
+        percentage = str(round(int(idx) / len(video_urls) * 100, 2)) + "%"
+        print(percentage + " - " + idx + "/" + str(len(video_urls)) + "(" + str(len(failedVideos)) + ") - " + vodURL)
+        
         try:
             # Download Video
             video = download(vodURL)
 
-            # Check video
-            if video:
-                process(video, idx)
+            # Process video
+            process(video, idx)
+
+            # Success
+            print("INFO - Download Successful")
         except Exception:
+            print("ERROR: Failed - " + vodURL)
             failedVideos[idx] = vodURL
 
-        print("--------------------------------\n")
+        print("\n--------------------------------\n")
 
     # Create log file for unsuccessful videos
     if len(failedVideos) != 0:
@@ -127,6 +123,7 @@ def main():
     print("INFO - Finished Downloading")
     print("INFO - Failed Videos: " + formatIdx.format(len(failedVideos)))
     print("INFO - Location:" + sys.argv[2])
+
     return True
 
 
