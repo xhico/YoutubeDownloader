@@ -1,5 +1,5 @@
 # YoutubeDownloader
- Download any public Youtube Channel / Playlist from Youtube</br>
+ Download any public Youtube Channel / Playlist</br>
  
 # Features
  * Bulk download Youtube Channel
