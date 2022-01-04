@@ -10,29 +10,31 @@ import re
 import shutil
 import sys
 
-from pytube import YouTube, Playlist, Channel
+from pytube import YouTube, Channel, Playlist
 
 
-def download(vodURL, folderPath, idx, numbTotal, failedTotal):
+def checkURL():
+    # Set Channel/Playlist
+    try:
+        p = Channel(YoutubeURL)
+        print("INFO: Youtube Channel: " + p.channel_name)
+    except Exception:
+        try:
+            p = Playlist(YoutubeURL)
+            print("INFO: Playlist: " + p.title)
+        except Exception:
+            print("ERROR - Couldn't reach Channel or Playlist - " + YoutubeURL)
+            return None
+
+    return p
+
+
+def download(vodURL):
     # Get video
     try:
         video = YouTube(vodURL)
-    except Exception:
-        print("ERROR - Couldn't reach video - " + vodURL)
-        return False
+        print("INFO - Video: " + video.title)
 
-    # Set filename, fullPath and temporary video/audio files
-    # Set titles, allow only Alphanumeric and " .,_-" -> Remove multi-spaces
-    title = re.sub('\s+', ' ', re.sub(r'[^A-Za-z0-9 .,_-]+', '', video.title)).strip()
-    filename = idx + " - " + title
-    fullPath = os.path.join(folderPath, filename + ".mp4")
-    tmpVideo = os.path.join(folderPath, "tmp_video")
-    tmpAudio = os.path.join(folderPath, "tmp_audio")
-
-    # Show progress
-    print(str(round(int(idx) / int(numbTotal) * 100, 2)) + "% - " + str(idx) + "/" + str(numbTotal) + "(" + str(failedTotal) + ") - " + title)
-
-    try:
         # Download the best video quality
         print("INFO - Downloading video")
         video_only = video.streams.filter(type='video').order_by('resolution').last()
@@ -43,83 +45,87 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
         audio_only = video.streams.filter(type='audio').order_by('abr').last()
         audio_only.download(filename=tmpAudio)
 
-        # Merge two files
-        print("INFO - Merging video-audio")
-        cmd = "ffmpeg -i '" + tmpVideo + "' -i '" + tmpAudio + "' -c:v copy -c:a aac '" + fullPath + "' -loglevel error"
-        os.system(cmd)
-
-        # Set modified date of file with video publication date
-        pubDate = video.publish_date.timestamp()
-        os.utime(fullPath, (pubDate, pubDate))
-
-        # Remove tmp video/audio files
-        os.remove(tmpVideo)
-        os.remove(tmpAudio)
-
         print("INFO - Download Successful")
     except Exception:
         print("ERROR - Couldn't download Video - " + vodURL)
-        return False
+        video = False
 
-    return True
+    return video
 
 
-def main(YoutubeURL, folderPath):
+def process(video, idx):
+    print("INFO - Processing")
+
+    # Set filename, fullPath and temporary video/audio files
+    # Set titles, allow only Alphanumeric and " .,_-" -> Remove multi-spaces
+    title = re.sub('\s+', ' ', re.sub(r'[^A-Za-z0-9 .,_-]+', '', video.title)).strip()
+    filename = idx + " - " + title
+    fullPath = os.path.join(folderPath, filename + ".mp4")
+
+    # Merge two files
+    print("INFO - Merging video-audio")
+    cmd = "ffmpeg -i '" + tmpVideo + "' -i '" + tmpAudio + "' -c:v copy -c:a aac '" + fullPath + "' -loglevel error"
+    os.system(cmd)
+
+    # Set modified date of file with video publication date
+    pubDate = video.publish_date.timestamp()
+    os.utime(fullPath, (pubDate, pubDate))
+
+    # Remove tmp video/audio files
+    os.remove(tmpVideo)
+    os.remove(tmpAudio)
+
+
+def writeLog(failedVideos):
+    # Create log file for unsuccessful videos
+    with open(os.path.join(folderPath, "log.txt"), "w") as logFile:
+        for idx, vodURL in failedVideos.items():
+            logFile.write(idx + " - " + vodURL + "\n")
+    logFile.close()
+
+
+def main():
+    print("--------------------------------\n")
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-    # Set Playlist
-    try:
-        p = Channel(YoutubeURL)
-        print("Channel: " + p.title)
-    except Exception:
-        try:
-            p = Playlist(YoutubeURL)
-            print("Playlist: " + p.title)
-        except Exception:
-            print("ERROR - Couldn't reach Channel or Playlist - " + YoutubeURL)
-            return
-    finally:
-        print("--------------------------------")
-
-    # Set number of total videos and numbering format
-    numbTotal = len(p.video_urls)
-    formatIdx = "{:0" + str(len(str(numbTotal))) + "}"
-
-    # Check if folder already exists
+    # Check if folder already exists ? Empty : Create
     if os.path.exists(folderPath):
         shutil.rmtree(folderPath)
     os.mkdir(folderPath)
 
-    # Start from oldest to newest
-    video_urls = reversed(p.video_urls)
-
-    # Set Failed Video
-    failedVideos, failedVideosAgain = {}, {}
+    # Start from oldest to newest | Failed videos track | Number total videos
+    # Set number of total videos and numbering format
+    video_urls, numbTotal, failedVideos = reversed(yt.video_urls), len(yt.video_urls), {}
+    formatIdx = "{:0" + str(len(str(numbTotal))) + "}"
 
     # Iterate over every video URL
     for idx, vodURL in enumerate(video_urls):
         # Set index format (001, 002, 003, ..., 323)
         idx = formatIdx.format(idx + 1)
 
-        # Download Video
-        status = download(vodURL, folderPath, idx, numbTotal, len(failedVideos))
+        # Show progress
+        percentage = str(round(int(idx) / int(numbTotal) * 100, 2)) + "%"
+        print(percentage + " - " + str(idx) + "/" + str(numbTotal) + "(" + str(len(failedVideos)) + ") - " + vodURL)
 
-        # Check for failed status
-        if status is False:
+        try:
+            # Download Video
+            video = download(vodURL)
+
+            # Check video
+            if video:
+                process(video, idx)
+        except Exception:
             failedVideos[idx] = vodURL
 
-        print("")
+        print("--------------------------------\n")
 
     # Create log file for unsuccessful videos
-    if len(failedVideosAgain) != 0:
-        with open(folderPath + "log.txt", "w") as logFile:
-            for idx, vodURL in failedVideosAgain.items():
-                logFile.write(idx + " - " + vodURL + "\n")
-        logFile.close()
+    if len(failedVideos) != 0:
+        writeLog(failedVideos)
 
     print("--------------------------------")
     print("INFO - Finished Downloading")
-    print("INFO - Failed Videos: " + formatIdx.format(len(failedVideosAgain)))
+    print("INFO - Failed Videos: " + formatIdx.format(len(failedVideos)))
     print("INFO - Location:" + sys.argv[2])
     return True
 
@@ -129,5 +135,14 @@ if __name__ == '__main__':
         print("script.py playlist folder")
         exit()
 
-    main(sys.argv[1], sys.argv[2])
+    # Global Variables
+    YoutubeURL = sys.argv[1]
+    folderPath = sys.argv[2]
+    tmpVideo, tmpAudio = os.path.join(folderPath, "tmp_video"), os.path.join(folderPath, "tmp_audio")
+
+    # Check YoutubeURL ? Run main : exit
+    yt = checkURL()
+    if yt:
+        main()
+
     exit()
