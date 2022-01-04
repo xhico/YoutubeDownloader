@@ -48,7 +48,7 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
         cmd = "ffmpeg -i '" + tmpVideo + "' -i '" + tmpAudio + "' -c:v copy -c:a aac '" + fullPath + "' -loglevel error"
         os.system(cmd)
 
-        # Set creation and modified date of file with video publication date
+        # Set modified date of file with video publication date
         pubDate = video.publish_date.timestamp()
         os.utime(fullPath, (pubDate, pubDate))
 
