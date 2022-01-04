@@ -48,6 +48,10 @@ def download(vodURL, folderPath, idx, numbTotal, failedTotal):
         cmd = "ffmpeg -i '" + tmpVideo + "' -i '" + tmpAudio + "' -c:v copy -c:a aac '" + fullPath + "' -loglevel error"
         os.system(cmd)
 
+        # Set creation and modified date of file with video publication date
+        pubDate = video.publish_date.timestamp()
+        os.utime(fullPath, (pubDate, pubDate))
+
         # Remove tmp video/audio files
         os.remove(tmpVideo)
         os.remove(tmpAudio)
@@ -104,22 +108,6 @@ def main(YoutubeURL, folderPath):
             failedVideos[idx] = vodURL
 
         print("")
-
-    # Check for Failed Videos
-    if len(failedVideos) != 0:
-        print("--------------------------------")
-        totalFailed = formatIdx.format(len(failedVideos))
-        print("INFO - Failed videos: " + totalFailed)
-        print("INFO - Retrying")
-        print("--------------------------------\n")
-
-        # Retry for failed Videos
-        for idx, vodURL in failedVideos.items():
-            status = download(vodURL, folderPath, idx, totalFailed, len(failedVideosAgain))
-            if status is False:
-                failedVideosAgain[idx] = vodURL
-
-            print("")
 
     # Create log file for unsuccessful videos
     if len(failedVideosAgain) != 0:
