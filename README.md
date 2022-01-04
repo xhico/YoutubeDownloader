@@ -5,7 +5,6 @@
  * Bulk download Youtube Channel
  * Bulk download Playlist
  * Automatic numbering by oldest-to-newest (001 - VideoTitle1.mp4, 002 - VideoTitle2.mp4, ..., 232 - VideoTitle232.mp4)
- * Automatic detection, channel or playlist
  * Always download best video / best audio
  * Creation/Modified date on file is video publication date
  
