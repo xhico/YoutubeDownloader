@@ -17,7 +17,7 @@ def checkURL():
     # Set Channel/Playlist
     try:
         p = Channel(YoutubeURL)
-        print("INFO: Youtube Channel: " + p.channel_name)
+        print("INFO: Youtube Channel - " + p.channel_name)
     except Exception:
         try:
             p = Playlist(YoutubeURL)
