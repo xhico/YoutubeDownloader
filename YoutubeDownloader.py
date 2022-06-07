@@ -99,12 +99,10 @@ def main():
         # Show progress
         percentage = str(round(int(idx) / len(video_urls) * 100, 2)) + "%"
         print(percentage + " - " + idx + "/" + str(len(video_urls)) + "(" + str(len(failedVideos)) + ") - " + vodURL)
-        
-        try:
-            # Download Video
-            video = download(vodURL)
 
-            # Process video
+        try:
+            # Download Video -> Process video
+            video = download(vodURL)
             process(video, idx)
 
             # Success
