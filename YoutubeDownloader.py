@@ -2,14 +2,11 @@
 # !/usr/bin/python3
 
 # sudo apt install ffmpeg -y
-# python3 -m pip install pytube --no-cache-dir
-# python3 -m pip install --upgrade pytube
 
 import os
 import re
 import shutil
 import sys
-
 from pytube import YouTube, Channel, Playlist
 
 
